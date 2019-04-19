@@ -1,12 +1,13 @@
 package com.example.a.musicplayer.login
 
+
 interface LoginService {
     interface Presenter{
-        fun getData(acc:String,password:String,loginType: Int)
+        fun getData(acc:Long,password:String,loginType: Int)
     }
     interface UI{
         fun onError()
-        fun addData()
-        fun loginFailure(message : String)
+        fun startA(userID:Int,nickname: String)
+        fun loginFailure(message: String?)
     }
 }

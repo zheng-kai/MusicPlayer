@@ -1,13 +1,18 @@
-package com.example.a.musicplayer.Data
+package com.example.a.musicplayer.login.Data
 
 data class LoginBean(
-    var msg : String,
+
     var account: Account,
     var bindings: List<Binding>,
     var code: Int,
     var loginType: Int,
-    var profile: Profile
+    var profile: Profile,
+    var msg: String
 )
+//data class LoginBean(
+//    var code: Int,
+//    var msg: String
+//)
 
 data class Profile(
     var accountStatus: Int,
@@ -20,7 +25,7 @@ data class Profile(
     var backgroundImgId: Long,
     var backgroundImgIdStr: String,
     var backgroundUrl: String,
-    var birthday: Int,
+    var birthday: String,
     var city: Int,
     var defaultAvatar: Boolean,
     var description: String,
@@ -48,17 +53,6 @@ data class Profile(
 class Experts(
 )
 
-data class Binding(
-    var expired: Boolean,
-    var expiresIn: Int,
-    var id: Long,
-    var refreshTime: Int,
-    var tokenJsonStr: String,
-    var type: Int,
-    var url: String,
-    var userId: Int
-)
-
 data class Account(
     var anonimousUser: Boolean,
     var ban: Int,
@@ -74,4 +68,16 @@ data class Account(
     var vipType: Int,
     var viptypeVersion: Int,
     var whitelistAuthority: Int
+)
+
+data class Binding(
+    var bindingTime: Long,
+    var expired: Boolean,
+    var expiresIn: Int,
+    var id: Long,
+    var refreshTime: Int,
+    var tokenJsonStr: String,
+    var type: Int,
+    var url: String,
+    var userId: Int
 )
