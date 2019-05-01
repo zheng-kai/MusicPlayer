@@ -18,9 +18,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginUI_2"/>
-        <activity android:name="com.example.a.musicplayer.songs.playlist.UI"/>
-        <activity android:name=".songs.Songs.UI"/>
-        <activity android:name="com.example.a.musicplayer.songs.playlist.UI"/>
+        <activity android:name=".songs.playlist.UI"/>
+        <activity android:name=".songs.Songs.SongsUI"/>
     </application>
 
 </manifest>

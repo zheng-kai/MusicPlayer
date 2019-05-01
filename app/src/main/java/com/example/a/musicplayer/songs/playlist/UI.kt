@@ -12,6 +12,7 @@ import com.example.a.musicplayer.songs.playlist.data.Playlist
 class UI : AppCompatActivity(), Service.PLUI {
     private var userID = 0
     private var nickname = ""
+    private var notClicked = true
     private val presenter = Presenter(this)
     private lateinit var recyclerView: RecyclerView
     private var recyclerAdapter = RecyclerViewAdapter(this)
@@ -25,7 +26,10 @@ class UI : AppCompatActivity(), Service.PLUI {
         Log.d("userID",userID.toString())
         recyclerView = findViewById(R.id.recyclerview)
         confRecyclerAdapter()
-        presenter.getData(userID)
+        if(notClicked) {
+            notClicked = false
+            presenter.getData(userID)
+        }
     }
 
     fun confRecyclerAdapter() {
@@ -36,10 +40,12 @@ class UI : AppCompatActivity(), Service.PLUI {
     }
 
     override fun success(list : List<Playlist?>?) {
+        notClicked = true
         recyclerAdapter.addData(list,nickname)
     }
 
     override fun onError() {
+        notClicked = true
         Toast.makeText(this, "检查网络", Toast.LENGTH_SHORT).show()
     }
 }

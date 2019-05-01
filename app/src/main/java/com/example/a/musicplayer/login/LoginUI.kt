@@ -10,30 +10,39 @@ import com.example.a.musicplayer.R
 class LoginUI : AppCompatActivity() {
     private val LOGIN_BY_EMAIL = 0
     private val LOGIN_BY_PHONE = 1
+    private var notClicked = true
     lateinit var buttonPhone: Button
     lateinit var buttonEmail: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        initID()
+        init()
         SetOnClick()
     }
 
-    fun initID() {
+    fun init() {
+        notClicked = true
         buttonEmail = findViewById(R.id.button_email)
         buttonPhone = findViewById(R.id.button_phone)
     }
-    fun SetOnClick(){
+
+    fun SetOnClick() {
         buttonEmail.setOnClickListener {
-            val intent = Intent(this,LoginUI_2::class.java)
-            intent.putExtra("type",LOGIN_BY_EMAIL)
-            startActivity(intent)
+            if (notClicked) {
+                notClicked = false
+                val intent = Intent(this, LoginUI_2::class.java)
+                intent.putExtra("type", LOGIN_BY_EMAIL)
+                startActivity(intent)
+            }
         }
         buttonPhone.setOnClickListener {
-            val intent = Intent(this,LoginUI_2::class.java)
-            intent.putExtra("type",LOGIN_BY_PHONE)
-            startActivity(intent)
+            if (notClicked) {
+                notClicked = false
+                val intent = Intent(this, LoginUI_2::class.java)
+                intent.putExtra("type", LOGIN_BY_PHONE)
+                startActivity(intent)
+            }
         }
     }
 }
