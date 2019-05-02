@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Toast
 import com.example.a.musicplayer.R
+import com.example.a.musicplayer.songs.player.MyService
 import com.example.a.musicplayer.songs.playlist.data.Playlist
 
 class UI : AppCompatActivity(), Service.PLUI {

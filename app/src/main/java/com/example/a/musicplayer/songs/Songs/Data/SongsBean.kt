@@ -103,7 +103,7 @@ data class Track(
     var fee: Int,
     var ftype: Int,
     var h: H,
-    var id: Int,
+    var id: String,
     var l: L,
     var m: M,
     var mst: Int,

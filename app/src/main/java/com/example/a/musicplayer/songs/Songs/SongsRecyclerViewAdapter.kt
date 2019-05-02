@@ -1,17 +1,19 @@
 package com.example.a.musicplayer.songs.Songs
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import com.example.a.musicplayer.R
+import com.example.a.musicplayer.songs.player.Player
 import com.example.a.musicplayer.songs.Songs.Data.Track
-import java.util.zip.Inflater
 
-class SongsRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val SONG_TYPE = 0
     private var list = ArrayList<Track>()
     fun addData(list: List<Track>?) {
@@ -21,7 +23,15 @@ class SongsRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<Recy
     }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
-        return Song(LayoutInflater.from(context).inflate(R.layout.recycler_item_song, p0, false))
+        val itemView = LayoutInflater.from(context).inflate(R.layout.recycler_item_song, p0, false)
+        val song = Song(itemView)
+        itemView.setOnClickListener {
+            val intent = Intent(context, Player::class.java)
+            intent.putExtra("id",song.id)
+            intent.putExtra("picUrl",song.picUrl)
+            context.startActivity(intent)
+        }
+        return song
     }
 
     override fun getItemCount(): Int {
@@ -41,10 +51,14 @@ class SongsRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<Recy
             }
             subTitle = subTitle.substring(0,subTitle.length - 1) + "-" + list[p1].al.name
             p0.subTitleText.text = subTitle
+            p0.id = list[p1].id
+            p0.picUrl = list[p1].al.picUrl
         }
     }
 
     inner class Song(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var id = ""
+        var picUrl = ""
         val titleText = itemView.findViewById<TextView>(R.id.title)
         val aliaTitle = itemView.findViewById<TextView>(R.id.alia_title)
         val subTitleText = itemView.findViewById<TextView>(R.id.subtitle)
