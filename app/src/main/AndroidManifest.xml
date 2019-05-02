@@ -22,7 +22,7 @@
         <activity android:name=".login.LoginUI_2"/>
         <activity android:name=".songs.playlist.UI"/>
         <activity android:name=".songs.Songs.SongsUI"/>
-        <activity android:name=".songs.player.Player"/>
+        <activity android:name=".songs.player.PlayerUI"/>
         <service android:name=".songs.player.MyService"
                  android:enabled="true"
                  android:exported="true"/>

@@ -10,5 +10,6 @@ interface PlayerService {
     interface UI{
         fun onError()
         fun success(bean:SongBean)
+        fun loadImage(picUrl:String?)
     }
 }

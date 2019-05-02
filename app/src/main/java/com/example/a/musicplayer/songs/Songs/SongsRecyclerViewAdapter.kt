@@ -8,9 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import com.example.a.musicplayer.R
-import com.example.a.musicplayer.songs.player.Player
+import com.example.a.musicplayer.songs.player.PlayerUI
 import com.example.a.musicplayer.songs.Songs.Data.Track
 
 class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -26,7 +25,7 @@ class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adap
         val itemView = LayoutInflater.from(context).inflate(R.layout.recycler_item_song, p0, false)
         val song = Song(itemView)
         itemView.setOnClickListener {
-            val intent = Intent(context, Player::class.java)
+            val intent = Intent(context, PlayerUI::class.java)
             intent.putExtra("id",song.id)
             intent.putExtra("picUrl",song.picUrl)
             context.startActivity(intent)
