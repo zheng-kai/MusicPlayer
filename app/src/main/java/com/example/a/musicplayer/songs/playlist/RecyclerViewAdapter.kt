@@ -3,6 +3,7 @@ package com.example.a.musicplayer.songs.playlist
 import android.content.Context
 import android.content.Intent
 import android.media.Image
+import android.opengl.Visibility
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -71,8 +72,12 @@ class RecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerV
         if (p0 is ListTitle) {
             if (p1 < myListCount) {
                 p0.textView.text = "我的歌单"
+                p0.imageView.setOnClickListener {
+                    
+                }
             } else if (p1 == myListCount + 1) {
                 p0.textView.text = "收藏的歌单"
+                p0.imageView.visibility = View.GONE
             }
         } else if (p0 is SongsList) {
             Picasso.with(context).load(list[p1]?.coverImgUrl)
@@ -97,6 +102,6 @@ class RecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerV
 
     inner class ListTitle(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView = itemView.findViewById<TextView>(R.id.title)
-        val imageView = itemView.findViewById<ImageView>(R.id.pop)
+        val imageView = itemView.findViewById<ImageView>(R.id.image_plus)
     }
 }

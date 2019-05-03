@@ -39,17 +39,16 @@ class MyService : Service() {
     }
 
     override fun onDestroy() {
-        Log.d("mmlisteee",list.size.toString())
+        Log.d("mmlisteee", list.size.toString())
         super.onDestroy()
     }
+
     private fun playByPosition(position: Int): Boolean {
         when (mediaPlayer) {
             null -> mediaPlayer = MediaPlayer()
         }
         mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.reset()
-            }
+            it.reset()
             try {
                 it.setDataSource(list[position])
                 it.prepare()
@@ -67,16 +66,16 @@ class MyService : Service() {
             null -> mediaPlayer = MediaPlayer()
         }
         mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.reset()
-            }
+            it.reset()
             try {
                 it.setDataSource(url)
                 it.prepare()
                 it.start()
-                list.add(url)
-                Log.d("mmlist",list.toString() + "!size! " + list.size.toString() + "!id! $id")
-                position++
+                if(!list.contains(url)){
+                    list.add(url)
+                    position++
+                }
+                Log.d("mmlist", list.toString() + "!size! " + list.size.toString() + "!id! $id")
                 return true
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -87,8 +86,7 @@ class MyService : Service() {
 
     fun playNext() {
         position++
-        Log.d("mmlistsize",list.toString() + "!size! " + list.size.toString())
-        if(position >= list.size){
+        if (position >= list.size) {
             position = 0
         }
         url = list[position]
@@ -113,18 +111,20 @@ class MyService : Service() {
             }
         }
     }
-    fun isPlaying():Boolean{
+
+    fun isPlaying(): Boolean {
         return mediaPlayer?.isPlaying ?: false
     }
-    fun getCurrentPosition():Int{
-        Log.d("position",mediaPlayer?.currentPosition.toString())
+
+    fun getCurrentPosition(): Int {
         return mediaPlayer?.currentPosition ?: 0
     }
-    fun getDuration():Int{
-        Log.d("duration",mediaPlayer?.duration.toString())
+
+    fun getDuration(): Int {
         return mediaPlayer?.duration ?: 3
     }
-    fun seekTo(position:Int){
+
+    fun seekTo(position: Int) {
         mediaPlayer?.seekTo(position)
     }
 }

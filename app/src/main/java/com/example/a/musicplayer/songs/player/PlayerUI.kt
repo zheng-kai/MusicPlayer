@@ -1,7 +1,6 @@
 package com.example.a.musicplayer.songs.player
 
 import android.content.ComponentName
-import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
@@ -9,61 +8,64 @@ import android.os.Handler
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.view.animation.LinearInterpolator
 import android.widget.*
 import com.example.a.musicplayer.R
-import com.example.a.musicplayer.R.id.seekbar
-import com.example.a.musicplayer.songs.player.PlayList.Companion.playList
 import com.example.a.musicplayer.songs.player.data.SongBean
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 
 class PlayerUI : AppCompatActivity(), PlayerService.UI {
+    private val SEQUENTIAL_PLAY = 0
+    private var TYPE = SEQUENTIAL_PLAY
     private val presenter = Presenter(this)
     private val playList = PlayList.playList
     private lateinit var priorButton: Button
     private lateinit var nextButton: Button
     private lateinit var pauseOrPlayButton: Button
     private lateinit var image: ImageView
-    private lateinit var seekbar: SeekBar
+    private lateinit var seekBar: SeekBar
     private lateinit var totalTime: TextView
     private lateinit var currentTime: TextView
+    private var animation: Animation? = null
     private var myService: MyService? = null
     private var picUrl: String? = ""
+    init{}
     private var sCnn: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("mmmbind", myService.toString())
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             myService = (service as MyService.MyBinder).getService()
-            Log.d("emmmbind", myService.toString())
+            handler.post(runnable)
         }
     }
     val handler = Handler()
-    val runnable = object : Runnable {
-        override fun run() {
-            var flag = true
-            while (flag) {
-                myService?.let {
-                    totalTime.text = convertToTime(it.getDuration())
-                    currentTime.text = convertToTime(it.getCurrentPosition())
-                    seekbar.progress = it.getCurrentPosition()
-                    seekbar.max = it.getDuration()
-                    flag = false
-                }
-            }
-            while (true) {
-                handler.postDelayed(this, 1L)
-                myService?.let {
-                    currentTime.text = convertToTime(it.getCurrentPosition())
-                    seekbar.progress = it.getCurrentPosition()
-                }
-            }
+    val runnable = Runnable {
+        Log.d("runnable!", "run!")
+        myService?.let {
+            totalTime.text = convertToTime(it.getDuration())
+            currentTime.text = convertToTime(it.getCurrentPosition())
+            seekBar.progress = it.getCurrentPosition()
+            seekBar.max = it.getDuration()
         }
+    }
+    val runnable2 = object : Runnable {
+        //seekBar 自动移动。当前时间改变
+        override fun run() {
+            myService?.let {
+                currentTime.text = convertToTime(it.getCurrentPosition())
+                seekBar.progress = it.getCurrentPosition()
+            }
+            handler.postDelayed(this, 1L)
+        }
+    }
+
+    override fun onResume() {
+        handler.post(runnable2)
+        super.onResume()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +77,6 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         playList.storeData(picUrl)
         loadImage(picUrl)
         presenter.getData(intent.getStringExtra("id"))
-        handler.post(runnable)
     }
 
     override fun success(bean: SongBean) {
@@ -83,7 +84,6 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         sIntent.putExtra("url", bean.data[0].url)
         startService(sIntent)
         bindService(sIntent, sCnn, BIND_AUTO_CREATE)
-
     }
 
     override fun onError() {
@@ -95,45 +95,61 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
             .load(picUrl)
             .fit()
             .into(image)
+        animation = AnimationUtils.loadAnimation(this,R.anim.rotate)
+        animation?.let{
+            it.duration = 40000
+            it.repeatCount = -1
+            val lir = LinearInterpolator()
+            it.interpolator = lir
+            it.start()
+        }
+        image.startAnimation(animation)
     }
 
-    fun init() {
+    private fun init() {
         playList.setUI(this)
         image = findViewById(R.id.image_song)
         priorButton = findViewById(R.id.prior)
         nextButton = findViewById(R.id.next)
         pauseOrPlayButton = findViewById(R.id.pause_play)
-        seekbar = findViewById(R.id.seekbar)
+        seekBar = findViewById(R.id.seekbar)
         totalTime = findViewById(R.id.total_time)
         currentTime = findViewById(R.id.current_time)
     }
 
-    fun setClick() {
+    private fun setClick() {
         priorButton.setOnClickListener {
-            myService?.playPrior()
-            playList.playPrior()
+            playPrior()
         }
         nextButton.setOnClickListener {
-            myService?.playNext()
-            playList.playNext()
+            playNext()
         }
         pauseOrPlayButton.setOnClickListener {
             myService?.let {
                 if (it.isPlaying()) {
-                    pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
-                } else {
                     pauseOrPlayButton.setBackgroundResource(R.drawable.play)
+                    animation?.cancel()
+                } else {
+                    pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
+                    animation?.start()
                 }
                 it.pauseOrPlay()
             }
-
         }
-        seekbar.setOnSeekBarChangeListener(
+        seekBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
                         seekBar?.let {
                             myService?.seekTo(it.progress)
+                            currentTime.text = convertToTime(progress)
+                        }
+                    }
+                    if(progress == myService?.getDuration()){
+                        when (TYPE) {
+                            SEQUENTIAL_PLAY -> {
+                                playNext()
+                            }
                         }
                     }
                 }
@@ -143,12 +159,26 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 }
-
             })
     }
-
+    fun playPrior(){
+        myService?.playPrior()
+        playList.playPrior()
+        pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
+        seekBar.progress = 0
+        currentTime.text = convertToTime(0)
+        totalTime.text = convertToTime(myService?.getDuration()as Int)
+    }
+    fun playNext(){
+        myService?.playNext()
+        playList.playNext()
+        pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
+        seekBar.progress = 0
+        currentTime.text = convertToTime(0)
+        totalTime.text = convertToTime(myService?.getDuration()as Int)
+    }
     fun convertToTime(number: Int): String {
-        val time = number / 100
+        val time = number / 1000
         val minute = time / 60
         val second = time - minute * 60
         var totalTime = ""

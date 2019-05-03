@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
 >
-    <ImageView
+    <com.example.a.musicplayer.songs.player.view.MyImageView
             tools:src="@drawable/label"
             android:id="@+id/image_song"
             android:layout_width="200dp"
