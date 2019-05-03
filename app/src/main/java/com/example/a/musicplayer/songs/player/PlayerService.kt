@@ -13,7 +13,7 @@ interface PlayerService {
         fun onError()
         fun onNull()
         fun success(bean:SongBean)
-        fun loadImage(picUrl:String?)
-        fun loadImage()
+        fun load(picUrl:String?,title:String,subtitle:String)
+        fun load()
     }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_playlist"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+        <com.example.a.musicplayer.songs.player.view.MyImageView
+                android:id="@+id/head_photo"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"/>
+        <TextView
+                android:gravity="center"
+                android:textColor="#DBDADB"
+                android:text="歌 单"
+                android:textSize="23dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                  android:layout_height="match_parent"/>
+        <ImageView
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/search"
+                android:layout_gravity="end"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+    </android.support.v7.widget.Toolbar>
+    <android.support.v7.widget.RecyclerView
+            android:layout_marginTop="4dp"
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+</LinearLayout>

@@ -2,14 +2,13 @@ package com.example.a.musicplayer.songs.player
 
 import android.animation.ObjectAnimator
 import android.util.Log
-import com.example.a.musicplayer.R
 
 class PlayList private constructor() {
     private lateinit var UI: PlayerService.UI
     private var position = -1
-    private var anis = ArrayList<ObjectAnimator?>()
     private var picList = ArrayList<String?>()
-
+    private var titleList = ArrayList<String>()
+    private var subtitleList = ArrayList<String>()
     companion object {
         val playList: PlayList by lazy {
             PlayList()
@@ -20,19 +19,20 @@ class PlayList private constructor() {
         this.UI = UI
     }
 
-    fun storeData(picUrl: String?, animator: ObjectAnimator?) {
+    fun storeData(picUrl: String?, animator: ObjectAnimator?,title:String,subtitle:String) {
         if (!picList.contains(picUrl)) {
             position++
             picList.add(picUrl)
-            anis.add(animator)
+            titleList.add(title)
+            subtitleList.add(subtitle)
         }
         Log.d("picList", picList.toString())
     }
     fun play(){
         if(position == -1){
-            UI.loadImage()
+            UI.load()
         }else{
-            UI.loadImage(picList[position])
+            UI.load(picList[position],titleList[position],subtitleList[position])
         }
     }
     fun playPrior() {
@@ -40,7 +40,7 @@ class PlayList private constructor() {
         when (position) {
             -1 -> position = picList.size - 1
         }
-        UI.loadImage(picList[position])
+        UI.load(picList[position],titleList[position],subtitleList[position])
     }
 
     fun playNext() {
@@ -48,7 +48,7 @@ class PlayList private constructor() {
         when (position) {
             picList.size -> position = 0
         }
-        UI.loadImage(picList[position])
+        UI.load(picList[position],titleList[position],subtitleList[position])
     }
     fun isEmpty():Boolean{
         return picList.isEmpty()

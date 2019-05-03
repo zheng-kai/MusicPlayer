@@ -5,23 +5,25 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.example.a.musicplayer.R
+import com.example.a.musicplayer.login.Data.LoginBean
 import com.example.a.musicplayer.songs.playlist.UI
 
 class LoginUI_2 : AppCompatActivity(), LoginService.UI {
     private val LOGIN_BY_EMAIL = 0
     private val LOGIN_BY_PHONE = 1
     private var notClicked = true
+    private lateinit var toolbar: Toolbar
     private lateinit var accEdit: EditText
     private lateinit var passwordEdit: EditText
     private lateinit var button: Button
+    private lateinit var backBtn: Button
     private var type: Int = 0
     private val presenter = LoginPresenter(this)
-    //    private val preference = getSharedPreferences("loged", MODE_PRIVATE)
-//    private val editor = preference.edit()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_2)
@@ -41,13 +43,10 @@ class LoginUI_2 : AppCompatActivity(), LoginService.UI {
                 notClicked = false
                 presenter.getData(account, password, type)
             }
-//            editor.putLong("account",account)
-//            editor.putString("password",password)
-//            editor.putBoolean("isloged",true)
-//            editor.apply()
         }
-//        editor.putBoolean("isloged",false)
-//        editor.apply()
+        backBtn.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     fun recType(): Int {
@@ -55,6 +54,9 @@ class LoginUI_2 : AppCompatActivity(), LoginService.UI {
     }
 
     fun initID() {
+        toolbar = findViewById(R.id.toolbar_login2)
+        setSupportActionBar(toolbar)
+        backBtn = toolbar.findViewById(R.id.back_login2)
         button = findViewById(R.id.login)
         accEdit = findViewById(R.id.edit_account)
         passwordEdit = findViewById(R.id.edit_password)
@@ -65,10 +67,11 @@ class LoginUI_2 : AppCompatActivity(), LoginService.UI {
         Toast.makeText(this, "请检查网络", Toast.LENGTH_LONG).show()
     }
 
-    override fun startA(userID: Int, nickname: String) {
+    override fun startA(bean:LoginBean) {
         val intent2 = Intent(this, UI::class.java)
-        intent2.putExtra("userID", userID)
-        intent2.putExtra("nickname", nickname)
+        intent2.putExtra("userID", bean.account.id)
+        intent2.putExtra("nickname", bean.profile.nickname)
+        intent2.putExtra("headPhoto",bean.profile.avatarUrl)
         startActivity(intent2)
         finish()
     }

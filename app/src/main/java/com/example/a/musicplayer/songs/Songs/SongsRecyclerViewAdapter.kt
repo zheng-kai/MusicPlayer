@@ -28,6 +28,8 @@ class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adap
             val intent = Intent(context, PlayerUI::class.java)
             intent.putExtra("id",song.id)
             intent.putExtra("picUrl",song.picUrl)
+            intent.putExtra("songName",song.name)
+            intent.putExtra("creator",song.creator)
             context.startActivity(intent)
         }
         return song
@@ -43,6 +45,8 @@ class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adap
             p0.titleText.text = list[p1].name
             if(list[p1].alia.isNotEmpty()){
                 p0.aliaTitle.text = list[p1].alia[0]
+            }else{
+                p0.aliaTitle.text = ""
             }
             var subTitle = ""
             list[p1].ar.forEach{
@@ -52,12 +56,16 @@ class SongsRecyclerViewAdapter(private var context: Context) : RecyclerView.Adap
             p0.subTitleText.text = subTitle
             p0.id = list[p1].id
             p0.picUrl = list[p1].al.picUrl
+            p0.name = p0.titleText.text as String + p0.aliaTitle.text
+            p0.creator = list[p1].ar[0].name
         }
     }
 
     inner class Song(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var id = ""
         var picUrl = ""
+        var name = ""
+        var creator = ""
         val titleText = itemView.findViewById<TextView>(R.id.title)
         val aliaTitle = itemView.findViewById<TextView>(R.id.alia_title)
         val subTitleText = itemView.findViewById<TextView>(R.id.subtitle)

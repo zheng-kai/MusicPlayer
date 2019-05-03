@@ -4,11 +4,11 @@ import android.animation.ObjectAnimator
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
@@ -23,23 +23,30 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
     private var TYPE = SEQUENTIAL_PLAY
     private val presenter = Presenter(this)
     private val playList = PlayList.playList
+    private lateinit var toolbar: Toolbar
+    private lateinit var backBtn: Button
+    private lateinit var commentBtn: Button
     private lateinit var priorButton: Button
     private lateinit var nextButton: Button
     private lateinit var pauseOrPlayButton: Button
     private lateinit var image: ImageView
     private lateinit var seekBar: SeekBar
+    private lateinit var titleTV: TextView
+    private lateinit var subtitleTV: TextView
     private lateinit var totalTime: TextView
     private lateinit var currentTime: TextView
     private var animator: ObjectAnimator? = null
     private var myService: MyService? = null
     private var picUrl: String? = ""
+    private var title = ""
+    private var subtitle = ""
     private var sCnn: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             myService = (service as MyService.MyBinder).getService()
-            if(playList.isEmpty()){
+            if (playList.isEmpty()) {
                 myService = null
             }
             handler.post(runnable)
@@ -77,6 +84,8 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         init()
         setClick()
         picUrl = intent.getStringExtra("picUrl")
+        title = intent.getStringExtra("songName")
+        subtitle = intent.getStringExtra("creator")
         presenter.getData(intent.getStringExtra("id"))
     }
 
@@ -85,42 +94,50 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         sIntent.putExtra("url", bean.data[0].url)
         startService(sIntent)
         bindService(sIntent, sCnn, BIND_AUTO_CREATE)
-        loadImage(picUrl)
-        playList.storeData(picUrl,animator)
+        load(picUrl,title,subtitle)
+        playList.storeData(picUrl, animator, title, subtitle)
+        titleTV.text = intent.getStringExtra("songName")
+        subtitleTV.text = intent.getStringExtra("creator")
     }
-    override fun onNull(){
+
+    override fun onNull() {
         val sIntent = Intent(this, MyService::class.java)
         sIntent.putExtra("url", "")
         startService(sIntent)
         bindService(sIntent, sCnn, BIND_AUTO_CREATE)
-
-        playList.play()
-
-        Toast.makeText(this,"抱歉，没有这首歌曲",Toast.LENGTH_SHORT).show()
+        playList.play()//无版权时播放上一首
+        Toast.makeText(this, "抱歉，没有这首歌曲", Toast.LENGTH_SHORT).show()
     }
+
     override fun onError() {
         Toast.makeText(this, "请检查网络", Toast.LENGTH_LONG).show()
     }
-    override fun loadImage() {
+
+    override fun load() {
         Picasso.with(this)
             .load(R.drawable.label)
             .fit()
             .into(image)
-        animator = ObjectAnimator.ofFloat(image,"rotation",0f,360f)
-        animator?.let{
+        titleTV.text = "这是神奇的彩蛋"
+        subtitleTV.text = "programmer  z"
+        animator = ObjectAnimator.ofFloat(image, "rotation", 0f, 360f)
+        animator?.let {
             it.duration = 40000
             it.repeatCount = Animation.INFINITE
             it.interpolator = LinearInterpolator()
             it.start()
         }
     }
-    override fun loadImage(picUrl: String?) {
+
+    override fun load(picUrl: String?,title:String,subtitle:String) {
         Picasso.with(this)
             .load(picUrl)
             .fit()
             .into(image)
-        animator = ObjectAnimator.ofFloat(image,"rotation",0f,360f)
-        animator?.let{
+        titleTV.text = title
+        subtitleTV.text = subtitle
+        animator = ObjectAnimator.ofFloat(image, "rotation", 0f, 360f)
+        animator?.let {
             it.duration = 40000
             it.repeatCount = Animation.INFINITE
             it.interpolator = LinearInterpolator()
@@ -130,6 +147,12 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
 
     private fun init() {
         playList.setUI(this)
+        toolbar = findViewById(R.id.toolbar_player)
+        setSupportActionBar(toolbar)
+        backBtn = toolbar.findViewById(R.id.back_player)
+        titleTV = toolbar.findViewById(R.id.title_player)
+        subtitleTV = toolbar.findViewById(R.id.subtitle_player)
+        commentBtn = toolbar.findViewById(R.id.comment)
         image = findViewById(R.id.image_song)
         priorButton = findViewById(R.id.prior)
         nextButton = findViewById(R.id.next)
@@ -140,6 +163,9 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
     }
 
     private fun setClick() {
+        backBtn.setOnClickListener {
+            onBackPressed()
+        }
         priorButton.setOnClickListener {
             playPrior()
         }
@@ -167,8 +193,8 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
                             currentTime.text = convertToTime(progress)
                         }
                     }
-                    myService?.let{
-                        if(progress == it.getDuration()){
+                    myService?.let {
+                        if (progress == it.getDuration()) {
                             when (TYPE) {
                                 SEQUENTIAL_PLAY -> {
                                     playNext()
@@ -186,26 +212,29 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
                 }
             })
     }
-    fun playPrior(){
+
+    fun playPrior() {
         animator?.cancel()
         myService?.playPrior()
         playList.playPrior()
         pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
         seekBar.progress = 0
         currentTime.text = convertToTime(0)
-        totalTime.text = convertToTime(myService?.getDuration()as Int)
+        totalTime.text = convertToTime(myService?.getDuration() as Int)
         animator?.start()
     }
-    fun playNext(){
+
+    fun playNext() {
         animator?.cancel()
         myService?.playNext()
         playList.playNext()
         pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
         seekBar.progress = 0
         currentTime.text = convertToTime(0)
-        totalTime.text = convertToTime(myService?.getDuration()as Int)
+        totalTime.text = convertToTime(myService?.getDuration() as Int)
         animator?.start()
     }
+
     fun convertToTime(number: Int): String {
         val time = number / 1000
         val minute = time / 60

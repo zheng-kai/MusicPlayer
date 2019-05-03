@@ -19,10 +19,8 @@ class LoginPresenter(val UI : LoginService.UI) :LoginService.Presenter{
         call.enqueue(object :Callback<LoginBean>{
             override fun onResponse(call: Call<LoginBean>, response: Response<LoginBean>) {
                 val bean: LoginBean? = response.body()
-                Log.d("bean",bean.toString())
-                Log.d("beancode",bean?.code.toString()+bean?.msg)
                 if(bean?.code == 200){
-                    UI.startA(bean.account.id,bean.profile.nickname)
+                    UI.startA(bean)
                 }else{
                     UI.loginFailure("用户名或密码错误")
                 }

@@ -20,12 +20,9 @@ class Presenter(val UI: Service.PLUI) : Service.PLPresenter {
             override fun onResponse(call: Call<PlayListBean>, response: Response<PlayListBean>) {
                 val bean = response.body()
 
-                Log.d("listbean", bean?.playlist.toString())
-                val list = bean?.playlist
                 bean?.let {
                     UI.success(it.playlist)
                 }
-                Log.d("MYList", list?.toString())
             }
 
         })

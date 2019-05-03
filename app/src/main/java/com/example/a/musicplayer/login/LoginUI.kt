@@ -7,6 +7,9 @@ import android.os.Environment
 import android.widget.Button
 import android.widget.Toast
 import com.example.a.musicplayer.R
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class LoginUI : AppCompatActivity() {
     private val LOGIN_BY_EMAIL = 0
@@ -29,20 +32,27 @@ class LoginUI : AppCompatActivity() {
     }
 
     fun SetOnClick() {
+        val intent = Intent(this, LoginUI_2::class.java)
         buttonEmail.setOnClickListener {
             if (notClicked) {
                 notClicked = false
-                val intent = Intent(this, LoginUI_2::class.java)
                 intent.putExtra("type", LOGIN_BY_EMAIL)
                 startActivity(intent)
+                GlobalScope.launch {
+                    delay(1L)
+                    notClicked = true
+                }
             }
         }
         buttonPhone.setOnClickListener {
             if (notClicked) {
                 notClicked = false
-                val intent = Intent(this, LoginUI_2::class.java)
                 intent.putExtra("type", LOGIN_BY_PHONE)
                 startActivity(intent)
+                GlobalScope.launch {
+                    delay(1L)
+                    notClicked = true
+                }
             }
         }
     }

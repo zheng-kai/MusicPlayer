@@ -1,5 +1,7 @@
 package com.example.a.musicplayer.login
 
+import com.example.a.musicplayer.login.Data.LoginBean
+
 
 interface LoginService {
     interface Presenter{
@@ -7,7 +9,7 @@ interface LoginService {
     }
     interface UI{
         fun onError()
-        fun startA(userID:Int,nickname: String)
+        fun startA(bean: LoginBean)
         fun loginFailure(message: String?)
     }
 }
