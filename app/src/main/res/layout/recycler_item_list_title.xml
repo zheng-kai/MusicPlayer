@@ -29,7 +29,8 @@
                 android:layout_height="20dp"
                 android:src="@drawable/plus"
                 android:id="@+id/image_plus"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="7dp"
+
         />
         <ImageView
                 android:layout_gravity="center_vertical"

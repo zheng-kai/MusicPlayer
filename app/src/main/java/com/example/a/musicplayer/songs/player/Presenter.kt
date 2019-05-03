@@ -20,8 +20,10 @@ class Presenter(val UI: PlayerService.UI) : PlayerService.Presenter {
 
             override fun onResponse(call: Call<SongBean>, response: Response<SongBean>) {
                 val bean = response.body()
-                bean?.let {
-                    UI.success(it)
+                if(bean?.data?.get(0)?.url != null){
+                    UI.success(bean)
+                }else{
+                    UI.onNull()
                 }
             }
 

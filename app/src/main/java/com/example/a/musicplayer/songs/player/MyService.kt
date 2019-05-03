@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 
 class MyService : Service() {
     private var list: ArrayList<String?> = ArrayList()
@@ -29,12 +30,14 @@ class MyService : Service() {
 
         id = intent?.getStringExtra("url")
         Log.d("mmlist", "start! $id")
-
-        play(id)
-        mediaPlayer?.setOnErrorListener { mp, what, extra ->
+        if(id != null){
             play(id)
-            false
+            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+                play(id)
+                false
+            }
         }
+
         return super.onStartCommand(intent, flags, startId)
     }
 

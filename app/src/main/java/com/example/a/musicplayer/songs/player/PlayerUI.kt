@@ -1,15 +1,16 @@
 package com.example.a.musicplayer.songs.player
 
+import android.animation.ObjectAnimator
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import com.example.a.musicplayer.R
@@ -29,16 +30,18 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
     private lateinit var seekBar: SeekBar
     private lateinit var totalTime: TextView
     private lateinit var currentTime: TextView
-    private var animation: Animation? = null
+    private var animator: ObjectAnimator? = null
     private var myService: MyService? = null
     private var picUrl: String? = ""
-    init{}
     private var sCnn: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             myService = (service as MyService.MyBinder).getService()
+            if(playList.isEmpty()){
+                myService = null
+            }
             handler.post(runnable)
         }
     }
@@ -74,8 +77,6 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         init()
         setClick()
         picUrl = intent.getStringExtra("picUrl")
-        playList.storeData(picUrl)
-        loadImage(picUrl)
         presenter.getData(intent.getStringExtra("id"))
     }
 
@@ -84,26 +85,47 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         sIntent.putExtra("url", bean.data[0].url)
         startService(sIntent)
         bindService(sIntent, sCnn, BIND_AUTO_CREATE)
+        loadImage(picUrl)
+        playList.storeData(picUrl,animator)
     }
+    override fun onNull(){
+        val sIntent = Intent(this, MyService::class.java)
+        sIntent.putExtra("url", "")
+        startService(sIntent)
+        bindService(sIntent, sCnn, BIND_AUTO_CREATE)
 
+        playList.play()
+
+        Toast.makeText(this,"抱歉，没有这首歌曲",Toast.LENGTH_SHORT).show()
+    }
     override fun onError() {
         Toast.makeText(this, "请检查网络", Toast.LENGTH_LONG).show()
     }
-
+    override fun loadImage() {
+        Picasso.with(this)
+            .load(R.drawable.label)
+            .fit()
+            .into(image)
+        animator = ObjectAnimator.ofFloat(image,"rotation",0f,360f)
+        animator?.let{
+            it.duration = 40000
+            it.repeatCount = Animation.INFINITE
+            it.interpolator = LinearInterpolator()
+            it.start()
+        }
+    }
     override fun loadImage(picUrl: String?) {
         Picasso.with(this)
             .load(picUrl)
             .fit()
             .into(image)
-        animation = AnimationUtils.loadAnimation(this,R.anim.rotate)
-        animation?.let{
+        animator = ObjectAnimator.ofFloat(image,"rotation",0f,360f)
+        animator?.let{
             it.duration = 40000
-            it.repeatCount = -1
-            val lir = LinearInterpolator()
-            it.interpolator = lir
+            it.repeatCount = Animation.INFINITE
+            it.interpolator = LinearInterpolator()
             it.start()
         }
-        image.startAnimation(animation)
     }
 
     private fun init() {
@@ -128,10 +150,10 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
             myService?.let {
                 if (it.isPlaying()) {
                     pauseOrPlayButton.setBackgroundResource(R.drawable.play)
-                    animation?.cancel()
+                    animator?.pause()
                 } else {
                     pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
-                    animation?.start()
+                    animator?.resume()
                 }
                 it.pauseOrPlay()
             }
@@ -145,13 +167,16 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
                             currentTime.text = convertToTime(progress)
                         }
                     }
-                    if(progress == myService?.getDuration()){
-                        when (TYPE) {
-                            SEQUENTIAL_PLAY -> {
-                                playNext()
+                    myService?.let{
+                        if(progress == it.getDuration()){
+                            when (TYPE) {
+                                SEQUENTIAL_PLAY -> {
+                                    playNext()
+                                }
                             }
                         }
                     }
+
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -162,20 +187,24 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
             })
     }
     fun playPrior(){
+        animator?.cancel()
         myService?.playPrior()
         playList.playPrior()
         pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
         seekBar.progress = 0
         currentTime.text = convertToTime(0)
         totalTime.text = convertToTime(myService?.getDuration()as Int)
+        animator?.start()
     }
     fun playNext(){
+        animator?.cancel()
         myService?.playNext()
         playList.playNext()
         pauseOrPlayButton.setBackgroundResource(R.drawable.pause)
         seekBar.progress = 0
         currentTime.text = convertToTime(0)
         totalTime.text = convertToTime(myService?.getDuration()as Int)
+        animator?.start()
     }
     fun convertToTime(number: Int): String {
         val time = number / 1000

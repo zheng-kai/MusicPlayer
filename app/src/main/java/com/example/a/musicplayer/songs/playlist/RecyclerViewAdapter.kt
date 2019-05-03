@@ -2,14 +2,18 @@ package com.example.a.musicplayer.songs.playlist
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.Image
 import android.opengl.Visibility
+import android.support.v4.widget.PopupWindowCompat
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import com.example.a.musicplayer.R
@@ -46,6 +50,14 @@ class RecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerV
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
         return if (p1 == TITLE_TYPE) {
+            val view = LayoutInflater.from(context).inflate(R.layout.popupwindow_add,null,false)
+            val window = PopupWindow(view,view.width,view.height)
+            with(window){
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                isOutsideTouchable = true
+                isTouchable = true
+//                showAsDropDown(p0,)
+            }
             val itemView = LayoutInflater.from(context).inflate(R.layout.recycler_item_list_title, p0, false)
             ListTitle(itemView)
         } else {
@@ -73,7 +85,8 @@ class RecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerV
             if (p1 < myListCount) {
                 p0.textView.text = "我的歌单"
                 p0.imageView.setOnClickListener {
-                    
+
+
                 }
             } else if (p1 == myListCount + 1) {
                 p0.textView.text = "收藏的歌单"
@@ -101,6 +114,7 @@ class RecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<RecyclerV
     }
 
     inner class ListTitle(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var window : PopupWindow? = null
         val textView = itemView.findViewById<TextView>(R.id.title)
         val imageView = itemView.findViewById<ImageView>(R.id.image_plus)
     }
