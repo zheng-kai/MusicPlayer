@@ -66,6 +66,12 @@ class LyricsRecyclerAdapter(val context: Context): RecyclerView.Adapter<Recycler
                 }
             }
         }
+        PlayList.playList.storeData(listLyrics,listTime)
+        notifyDataSetChanged()
+    }
+    fun changeData(lyric:ArrayList<String?>,time:ArrayList<String?>){
+        listLyrics = lyric
+        listTime = time
         notifyDataSetChanged()
     }
     inner class Lyrics(itemView: View) : RecyclerView.ViewHolder(itemView) {

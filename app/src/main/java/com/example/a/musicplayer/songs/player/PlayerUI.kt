@@ -20,11 +20,14 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import com.example.a.musicplayer.R
+import com.example.a.musicplayer.songs.player.data.MyStoreBean
 import com.example.a.musicplayer.songs.player.data.SongBean
 import com.squareup.picasso.Picasso
 
 
 class PlayerUI : AppCompatActivity(), PlayerService.UI {
+
+
     private val SEQUENTIAL_PLAY = 0
     private var TYPE = SEQUENTIAL_PLAY
     private val presenter = Presenter(this)
@@ -150,14 +153,31 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
             it.start()
         }
     }
-
-    override fun load(picUrl: String?, title: String, subtitle: String) {
+    private fun load(picUrl:String?, title:String, subtitle:String) {
         Picasso.with(this)
             .load(picUrl)
             .fit()
             .into(image)
         titleTV.text = title
         subtitleTV.text = subtitle
+        animator = ObjectAnimator.ofFloat(image, "rotation", 0f, 360f)
+        animator?.let {
+            it.duration = 40000
+            it.repeatCount = Animation.INFINITE
+            it.interpolator = LinearInterpolator()
+            it.start()
+        }
+    }
+    override fun loadLyrics(lyric: ArrayList<String?>, time: ArrayList<String?>) {
+        reAdapterLyrics.changeData(lyric,time)
+    }
+    override fun load(mBean: MyStoreBean) {
+        Picasso.with(this)
+            .load(mBean.picUrl)
+            .fit()
+            .into(image)
+        titleTV.text = mBean.title
+        subtitleTV.text = mBean.subtitle
         animator = ObjectAnimator.ofFloat(image, "rotation", 0f, 360f)
         animator?.let {
             it.duration = 40000
