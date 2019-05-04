@@ -1,6 +1,7 @@
 package com.example.a.musicplayer.songs.player
 
 import com.example.a.musicplayer.mService
+import com.example.a.musicplayer.songs.player.data.LyricBean
 import com.example.a.musicplayer.songs.player.data.SongBean
 import com.example.a.musicplayer.songs.playlist.data.PlayListBean
 import retrofit2.Call
@@ -13,7 +14,10 @@ class Model{
         .baseUrl("http://192.168.146.1:3000/")
         .build()
     private var service = retrofit.create(mService::class.java)
-    fun getSong(@Query("id") id:String) : Call<SongBean>{
+    fun getSong(id:String) : Call<SongBean>{
         return service.getSong(id)
+    }
+    fun getLyric(id:String):Call<LyricBean>{
+        return service.getLyric(id)
     }
 }

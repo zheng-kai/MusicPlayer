@@ -32,7 +32,7 @@ class MyService : Service() {
         Log.d("mmlist", "start! $id")
         if(id != null){
             play(id)
-            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+            mediaPlayer?.setOnErrorListener { _, _, _ ->
                 play(id)
                 false
             }

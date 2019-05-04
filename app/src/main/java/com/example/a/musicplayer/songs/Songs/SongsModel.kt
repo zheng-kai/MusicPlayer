@@ -13,7 +13,7 @@ class SongsModel{
         .baseUrl("http://192.168.146.1:3000/")
         .build()
     private var service = retrofit.create(mService::class.java)
-    fun getDetail(@Query("id") id:String) : Call<SongsBean>{
+    fun getDetail( id:String) : Call<SongsBean>{
         return service.getDetail(id)
     }
 }

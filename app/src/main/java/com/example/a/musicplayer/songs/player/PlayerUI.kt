@@ -4,12 +4,18 @@ import android.animation.ObjectAnimator
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.*
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.widget.*
@@ -24,6 +30,7 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
     private val presenter = Presenter(this)
     private val playList = PlayList.playList
     private lateinit var toolbar: Toolbar
+    private lateinit var menu: Button
     private lateinit var backBtn: Button
     private lateinit var commentBtn: Button
     private lateinit var priorButton: Button
@@ -35,11 +42,20 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
     private lateinit var subtitleTV: TextView
     private lateinit var totalTime: TextView
     private lateinit var currentTime: TextView
+    private lateinit var switchLyrics: Button
+    private lateinit var containMenuLayout: ConstraintLayout
+    private lateinit var recyclerLyrics: RecyclerView
+    private var view : View?= null
+    private var recyclerMenu: RecyclerView? = null
+    private val reAdapterLyrics = LyricsRecyclerAdapter(this)
+    private val reAdapterMenu = MenuRecyclerAdapter(this)
     private var animator: ObjectAnimator? = null
     private var myService: MyService? = null
     private var picUrl: String? = ""
     private var title = ""
     private var subtitle = ""
+    private var isImage = true
+    private var window: PopupWindow? = null
     private var sCnn: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
         }
@@ -86,18 +102,24 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         picUrl = intent.getStringExtra("picUrl")
         title = intent.getStringExtra("songName")
         subtitle = intent.getStringExtra("creator")
+
         presenter.getData(intent.getStringExtra("id"))
     }
 
-    override fun success(bean: SongBean) {
+    override fun successSong(bean: SongBean) {
         val sIntent = Intent(this, MyService::class.java)
         sIntent.putExtra("url", bean.data[0].url)
         startService(sIntent)
         bindService(sIntent, sCnn, BIND_AUTO_CREATE)
-        load(picUrl,title,subtitle)
-        playList.storeData(picUrl, animator, title, subtitle)
+        load(picUrl, title, subtitle)
+        playList.storeData(picUrl, title, subtitle)
+        reAdapterMenu.addData("$title $subtitle")
         titleTV.text = intent.getStringExtra("songName")
         subtitleTV.text = intent.getStringExtra("creator")
+    }
+
+    override fun successLyric(lyric: String?) {
+        reAdapterLyrics.addData(lyric)
     }
 
     override fun onNull() {
@@ -129,7 +151,7 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         }
     }
 
-    override fun load(picUrl: String?,title:String,subtitle:String) {
+    override fun load(picUrl: String?, title: String, subtitle: String) {
         Picasso.with(this)
             .load(picUrl)
             .fit()
@@ -156,13 +178,56 @@ class PlayerUI : AppCompatActivity(), PlayerService.UI {
         image = findViewById(R.id.image_song)
         priorButton = findViewById(R.id.prior)
         nextButton = findViewById(R.id.next)
+        menu = findViewById(R.id.menu)
         pauseOrPlayButton = findViewById(R.id.pause_play)
         seekBar = findViewById(R.id.seekbar)
         totalTime = findViewById(R.id.total_time)
         currentTime = findViewById(R.id.current_time)
+        recyclerLyrics = findViewById(R.id.recycler_lyrics)
+        confRecycler()
+        switchLyrics = findViewById(R.id.switch_lyrics)
+        containMenuLayout = findViewById(R.id.clayout)
+        view = LayoutInflater.from(this).inflate(R.layout.recycler_item_player_menu,null)
+        window = PopupWindow(view, LinearLayout.LayoutParams.MATCH_PARENT , 250)
+        window?.let {
+            it.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            it.isOutsideTouchable = true
+            it.isTouchable = true
+        }
+    }
+
+    private fun confRecycler() {
+        val recyclerLayoutManager = LinearLayoutManager(this)
+        recyclerLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        recyclerLyrics.layoutManager = recyclerLayoutManager
+        recyclerLyrics.adapter = reAdapterLyrics
+        val recyclerLayoutManager2 = LinearLayoutManager(this)
+        recyclerLayoutManager2.orientation = LinearLayoutManager.VERTICAL
+        recyclerMenu?.layoutManager = recyclerLayoutManager2
+        recyclerMenu?.adapter = reAdapterMenu
     }
 
     private fun setClick() {
+        menu.setOnClickListener {
+            Log.d("menu!","click")
+            Log.d("menu!",window.toString())
+            window?.showAsDropDown(it, 0, 0, Gravity.TOP)
+        }
+        switchLyrics.setOnClickListener {
+            if (isImage) {
+                image.visibility = View.INVISIBLE
+                recyclerLyrics.visibility = View.VISIBLE
+//                image.isClickable = false
+//                recyclerLyrics.isClickable = true
+                isImage = false
+            } else {
+                image.visibility = View.VISIBLE
+                recyclerLyrics.visibility = View.INVISIBLE
+//                image.isClickable = true
+//                recyclerLyrics.isClickable = false
+                isImage = true
+            }
+        }
         backBtn.setOnClickListener {
             onBackPressed()
         }

@@ -12,7 +12,8 @@ interface PlayerService {
     interface UI{
         fun onError()
         fun onNull()
-        fun success(bean:SongBean)
+        fun successSong(bean:SongBean)
+        fun successLyric(lyric:String?)
         fun load(picUrl:String?,title:String,subtitle:String)
         fun load()
     }

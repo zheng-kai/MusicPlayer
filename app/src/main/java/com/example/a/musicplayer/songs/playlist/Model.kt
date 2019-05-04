@@ -12,7 +12,7 @@ class Model{
         .baseUrl("http://192.168.146.1:3000/")
         .build()
     private var service = retrofit.create(mService::class.java)
-    fun getPlayList(@Query("uid") uid:Int) : Call<PlayListBean>{
+    fun getPlayList(uid:Int) : Call<PlayListBean>{
         return service.getPlayList(uid)
     }
 }

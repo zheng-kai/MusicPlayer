@@ -19,7 +19,7 @@ class PlayList private constructor() {
         this.UI = UI
     }
 
-    fun storeData(picUrl: String?, animator: ObjectAnimator?,title:String,subtitle:String) {
+    fun storeData(picUrl: String?,title:String,subtitle:String) {
         if (!picList.contains(picUrl)) {
             position++
             picList.add(picUrl)
